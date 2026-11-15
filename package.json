@@ -1,0 +1,15 @@
+{
+  "name": "hiroshima-welfare-support-lp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-static.mjs",
+    "dev": "python3 -m http.server 4173",
+    "check": "node scripts/gauntlet.mjs",
+    "preview": "python3 -m http.server 4173 -d dist"
+  },
+  "devDependencies": {
+    "lighthouse": "^12.8.2",
+    "sharp": "^0.35.5"
+  }
+}
