@@ -106,11 +106,11 @@ async function inspectViewport(page, name, width, height) {
   await page.goto('http://127.0.0.1:4387/', { waitUntil: 'domcontentloaded' });
   await new Promise((resolve) => setTimeout(resolve, 700));
   await page.evaluate(async () => {
-    for (let y = 0; y < document.documentElement.scrollHeight; y += 620) {
-      window.scrollTo(0, y);
-      await new Promise((resolve) => setTimeout(resolve, 35));
+    for (const item of document.querySelectorAll('.reveal')) {
+      item.scrollIntoView({ block: 'center' });
+      await new Promise((resolve) => setTimeout(resolve, 90));
     }
-    window.scrollTo(0, 0);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   });
   const report = await page.evaluate(orphanLines);
   const metrics = await page.evaluate(() => ({
