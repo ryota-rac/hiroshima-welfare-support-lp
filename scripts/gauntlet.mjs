@@ -106,11 +106,11 @@ async function inspectViewport(page, name, width, height) {
   await page.goto('http://127.0.0.1:4387/', { waitUntil: 'domcontentloaded' });
   await new Promise((resolve) => setTimeout(resolve, 700));
   await page.evaluate(async () => {
-    for (let y = 0; y < document.documentElement.scrollHeight; y += 620) {
-      window.scrollTo(0, y);
-      await new Promise((resolve) => setTimeout(resolve, 35));
+    for (const item of document.querySelectorAll('.reveal')) {
+      item.scrollIntoView({ block: 'center' });
+      await new Promise((resolve) => setTimeout(resolve, 90));
     }
-    window.scrollTo(0, 0);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   });
   const report = await page.evaluate(orphanLines);
   const metrics = await page.evaluate(() => ({
@@ -137,7 +137,7 @@ if (process.env.RUN_BROWSER_GAUNTLET === '1') {
   try {
     await new Promise((resolve) => server.listen(4387, '127.0.0.1', resolve));
     browser = await puppeteer.launch({
-      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       headless: true,
       args: ['--no-sandbox', '--disable-dev-shm-usage']
     });
