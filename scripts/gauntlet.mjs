@@ -28,7 +28,7 @@ check(html.includes('aria-label="保有資格"'), '資格一覧のアクセシ�
 const phraseGuards = [
   'こんなとき、', 'ご相談ください。', '決まったメニューは、', 'ありません。',
   'SSTや活動の組み立てを、', '一緒に考える',
-  'リラクセーション・運動・制作を、', '子どもたちと',
+  'リラクゼーション・運動・制作を、', '子どもたちと',
   'これまでのやり方を、', '否定しません。',
   'その子の特性だけで、', '説明しません。',
   '一度で正解を、', '出そうとしません。'
@@ -37,7 +37,10 @@ phraseGuards.forEach((text) => check(html.includes(`<span class="phrase">${text}
 check(css.includes('.phrase{display:inline-block}'), 'デスクトップ改行ガードCSS不足');
 check(css.includes('@media(max-width:760px){.phrase{display:inline}}'), 'スマホ改行ガード解除不足');
 check(css.includes('text-wrap:balance'), '見出しの均等改行指定不足');
-check(html.includes('assets/css/style.css?v=4'), 'CSSキャッシュ更新用バージョン不足');
+check(!html.includes('リラクセーション'), '誤記「リラクセーション」が残っている');
+check(html.includes('リラクゼーション'), '「リラクゼーション」の表記不足');
+check(css.includes('.floating-contact-tab strong') && css.includes('white-space:nowrap'), '追従タブの改行防止不足');
+check(html.includes('assets/css/style.css?v=5'), 'CSSキャッシュ更新用バージョン不足');
 check(html.includes('assets/js/main.js?v=4'), 'JSキャッシュ更新用バージョン不足');
 
 check(html.includes('assets/img/rac-logo.png'), 'RACロゴ参照不足');
@@ -119,6 +122,12 @@ async function inspectViewport(page, name, width, height) {
     logoLoaded: [...document.querySelectorAll('img[src*="rac-logo"]')].every((image) => image.complete && image.naturalWidth > 0),
     contactCards: document.querySelectorAll('.contact-cards article').length,
     floatingTabExists: Boolean(document.querySelector('.floating-contact-tab')),
+    floatingTabLabelSingleLine: (() => {
+      const label = document.querySelector('.floating-contact-tab strong');
+      if (!label) return false;
+      const style = getComputedStyle(label);
+      return label.getBoundingClientRect().height <= Number.parseFloat(style.lineHeight) + 1;
+    })(),
     revealCount: document.querySelectorAll('.reveal.is-visible').length,
     revealTotal: document.querySelectorAll('.reveal').length
   }));
@@ -126,6 +135,7 @@ async function inspectViewport(page, name, width, height) {
   check(metrics.logoLoaded, `${name}: RACロゴ読込失敗`);
   check(metrics.contactCards === 2, `${name}: 相談カード数が2件ではない`);
   check(metrics.floatingTabExists, `${name}: 右側追従タブがない`);
+  check(metrics.floatingTabLabelSingleLine, `${name}: 追従タブ「相談はこちら」が複数行になっている`);
   check(metrics.revealTotal > 0 && metrics.revealCount === metrics.revealTotal, `${name}: スクロール表示されない要素がある (${metrics.revealCount}/${metrics.revealTotal})`);
   report.forEach((item) => failures.push(`${name}: 見出しに1文字孤立行「${item.text}」 → ${item.lines.join(' / ')}`));
   await fsp.mkdir(path.join(root, 'work', 'gauntlet'), { recursive: true });
