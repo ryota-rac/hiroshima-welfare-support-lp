@@ -137,7 +137,7 @@ if (process.env.RUN_BROWSER_GAUNTLET === '1') {
   try {
     await new Promise((resolve) => server.listen(4387, '127.0.0.1', resolve));
     browser = await puppeteer.launch({
-      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       headless: true,
       args: ['--no-sandbox', '--disable-dev-shm-usage']
     });
