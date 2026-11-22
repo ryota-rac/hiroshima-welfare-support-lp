@@ -33,6 +33,6 @@ await fs.writeFile(path.join(dist, 'index.html'), html);
 for (const file of ['privacy.html', 'commerce.html']) await fs.copyFile(path.join(root, file), path.join(dist, file));
 await fs.copyFile(path.join(root, 'assets/css/style.css'), path.join(dist, 'assets/css/style.css'));
 for (const file of ['main.js', 'site-config.js']) await fs.copyFile(path.join(root, 'assets/js', file), path.join(dist, 'assets/js', file));
-for (const file of ['favicon.svg', 'ogp.svg', 'rac-logo.png']) await fs.copyFile(path.join(root, 'assets/img', file), path.join(dist, 'assets/img', file));
+for (const file of ['favicon.svg', 'ogp.svg', 'rac-logo.png', 'hero-creative.webp', 'worry-facility.webp', 'worry-family.webp', 'worry-worker.webp', 'service-on-site.webp', 'service-planning.webp', 'service-relaxation.webp', 'service-workshop.webp', 'service-consultation.webp', 'service-online.webp', 'values-room.webp']) await fs.copyFile(path.join(root, 'assets/img', file), path.join(dist, 'assets/img', file));
 await fs.writeFile(path.join(dist, '.nojekyll'), '');
 console.log('Built static site in dist/.');

@@ -40,7 +40,7 @@ check(css.includes('text-wrap:balance'), '見出しの均等改行指定不足')
 check(!html.includes('リラクセーション'), '誤記「リラクセーション」が残っている');
 check(html.includes('リラクゼーション'), '「リラクゼーション」の表記不足');
 check(css.includes('.floating-contact-tab strong') && css.includes('white-space:nowrap'), '追従タブの改行防止不足');
-check(html.includes('assets/css/style.css?v=5'), 'CSSキャッシュ更新用バージョン不足');
+check(html.includes('assets/css/style.css?v=6'), 'CSSキャッシュ更新用バージョン不足');
 check(html.includes('assets/js/main.js?v=4'), 'JSキャッシュ更新用バージョン不足');
 
 check(html.includes('assets/img/rac-logo.png'), 'RACロゴ参照不足');
@@ -48,7 +48,13 @@ check(fs.existsSync(path.join(root, 'assets/img/rac-logo.png')), 'RACロゴフ�
 check(html.includes('mailto:ryota.rac18@gmail.com'), 'メール送信先不足');
 check(js.includes('mailto:ryota.rac18@gmail.com?subject='), '入力内容付きメール生成処理不足');
 check(html.includes('name="同意"'), '同意チェック不足');
-check((html.match(/class="image-placeholder/g) || []).length >= 10, '画像プレースホルダー不足');
+const photoFiles = ['hero-creative.webp', 'worry-facility.webp', 'worry-family.webp', 'worry-worker.webp', 'service-on-site.webp', 'service-planning.webp', 'service-relaxation.webp', 'service-workshop.webp', 'service-consultation.webp', 'service-online.webp', 'values-room.webp'];
+photoFiles.forEach((file) => {
+  check(fs.existsSync(path.join(root, 'assets/img', file)), `写真ファイル不足: ${file}`);
+  check(html.includes(`assets/img/${file}`), `写真参照不足: ${file}`);
+});
+check((html.match(/class="image-placeholder/g) || []).length === 1 && html.includes('class="image-placeholder portrait"'), 'プロフィール以外の画像プレースホルダーが残っている');
+check(!html.includes('photo-placeholder') && !html.includes('dark-photo') && !html.includes('dark-veil'), '問い合わせまたは写真帯に不要なプレースホルダーが残っている');
 check(!/gradient\(/i.test(css), 'グラデーション禁止');
 check(!/[😀-🙏]/u.test(html), '絵文字禁止');
 check(css.includes('#2b6f73'), 'アクセント色不足');
@@ -64,7 +70,7 @@ check(privacy.includes('利用目的') && privacy.includes('安全管理措置')
 check(commerce.includes('支払方法・支払時期') && commerce.includes('キャンセル・日程変更'), '特商法表記内容不足');
 check(fs.existsSync(path.join(root, '.github/workflows/pages.yml')), 'GitHub Pages workflow不足');
 
-const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml' };
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml' };
 const server = http.createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://127.0.0.1').pathname);
@@ -120,6 +126,8 @@ async function inspectViewport(page, name, width, height) {
     viewport: document.documentElement.clientWidth,
     pageWidth: document.documentElement.scrollWidth,
     logoLoaded: [...document.querySelectorAll('img[src*="rac-logo"]')].every((image) => image.complete && image.naturalWidth > 0),
+    photoCount: document.querySelectorAll('.site-photo,.card-photo').length,
+    photosLoaded: [...document.querySelectorAll('.site-photo,.card-photo')].every((image) => image.complete && image.naturalWidth > 0),
     contactCards: document.querySelectorAll('.contact-cards article').length,
     floatingTabExists: Boolean(document.querySelector('.floating-contact-tab')),
     floatingTabLabelSingleLine: (() => {
@@ -133,6 +141,7 @@ async function inspectViewport(page, name, width, height) {
   }));
   check(metrics.pageWidth <= metrics.viewport + 1, `${name}: 横方向にはみ出し (${metrics.pageWidth}px > ${metrics.viewport}px)`);
   check(metrics.logoLoaded, `${name}: RACロゴ読込失敗`);
+  check(metrics.photoCount === 11 && metrics.photosLoaded, `${name}: LP写真の件数または読込に問題がある (${metrics.photoCount}/11)`);
   check(metrics.contactCards === 2, `${name}: 相談カード数が2件ではない`);
   check(metrics.floatingTabExists, `${name}: 右側追従タブがない`);
   check(metrics.floatingTabLabelSingleLine, `${name}: 追従タブ「相談はこちら」が複数行になっている`);
